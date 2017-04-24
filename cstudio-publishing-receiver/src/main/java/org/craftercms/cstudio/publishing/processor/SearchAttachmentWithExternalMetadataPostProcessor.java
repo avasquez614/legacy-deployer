@@ -82,59 +82,63 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
     private void processFiles(String siteId, String root, List<String> fileList, boolean isDelete)
         throws IOException {
         for (String filePath : fileList) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Processing file %s for site %s", filePath, siteId));
-            }
-            File file = new File(root + filePath);
-            String updateIndexPath = filePath;
-            Map<String, String> externalProperties = null;
-            boolean searchIndexUpdate = false;
-            if (!isDelete) {
-                if (isMetadataFile(filePath)){
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Metadata processing started.");
-                    }
-                    SAXReader reader = new SAXReader();
-                    try {
-                        Document document = reader.read(file);
-                        updateIndexPath = getAttachmentPath(document);
-                        if (StringUtils.isNotBlank(updateIndexPath)) {
-                            if (logger.isDebugEnabled()) {
-                                logger.debug("Extracting properties.");
-                            }
-                            Document parsedDocument = parseTokenizeAttribute(document);
-                            externalProperties = parseMetadataFile(document);
-                            file = new File(root + updateIndexPath);
-                            if (!file.exists()) {
-                                File dir = file.getParentFile();
-                                dir.mkdirs();
-                                file.createNewFile();
-                            }
-                            searchIndexUpdate = true;
+            try {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(String.format("Processing file %s for site %s", filePath, siteId));
+                }
+                File file = new File(root + filePath);
+                String updateIndexPath = filePath;
+                Map<String, String> externalProperties = null;
+                boolean searchIndexUpdate = false;
+                if (!isDelete) {
+                    if (isMetadataFile(filePath)) {
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Metadata processing started.");
                         }
-                    } catch (DocumentException e) {
-                        logger.error(String.format("Error while opening xml file %s for site %s", filePath, siteId),
-                            e);
+                        SAXReader reader = new SAXReader();
+                        try {
+                            Document document = reader.read(file);
+                            updateIndexPath = getAttachmentPath(document);
+                            if (StringUtils.isNotBlank(updateIndexPath)) {
+                                if (logger.isDebugEnabled()) {
+                                    logger.debug("Extracting properties.");
+                                }
+                                Document parsedDocument = parseTokenizeAttribute(document);
+                                externalProperties = parseMetadataFile(document);
+                                file = new File(root + updateIndexPath);
+                                if (!file.exists()) {
+                                    File dir = file.getParentFile();
+                                    dir.mkdirs();
+                                    file.createNewFile();
+                                }
+                                searchIndexUpdate = true;
+                            }
+                        } catch (DocumentException e) {
+                            logger.error(String.format("Error while opening xml file %s for site %s", filePath, siteId), e);
+                        }
+                        if (logger.isDebugEnabled()) {
+                            logger.debug("Metadata processing finished.");
+                        }
+                    } else if (isAttachmentFile(filePath)) {
+                        searchIndexUpdate = true;
                     }
+                }
+
+                if (isDelete) {
+                    searchService.delete(siteId, updateIndexPath);
+                } else if (searchIndexUpdate) {
                     if (logger.isDebugEnabled()) {
-                        logger.debug("Metadata processing finished.");
+                        logger.debug(String.format("Sending search update request for file %s [%s] for site %s", updateIndexPath,
+                                                   filePath, siteId));
+
                     }
-                } else if (isAttachmentFile(filePath)) {
-                    searchIndexUpdate = true;
+                    searchService.updateDocument(siteId, updateIndexPath, file, externalProperties);
                 }
-            }
 
-            if(isDelete) {
-                searchService.delete(siteId, updateIndexPath);
-            } else if (searchIndexUpdate) {
-                if (logger.isDebugEnabled()){
-                    logger.debug(String.format("Sending search update request for file %s [%s] for site %s",
-                        updateIndexPath, filePath, siteId));
-                }
-                searchService.updateDocument(siteId, updateIndexPath, file, externalProperties);
+                searchService.commit();
+            } catch (Exception e) {
+                logger.error("Failed to send update of file " + siteId + ":" + filePath, e);
             }
-
-            searchService.commit();
         }
     }
 
