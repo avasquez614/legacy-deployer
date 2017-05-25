@@ -63,24 +63,18 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
         List<String> updatedFiles = changeSet.getUpdatedFiles();
         List<String> deletedFiles = changeSet.getDeletedFiles();
 
-        try {
-            if (CollectionUtils.isNotEmpty(createdFiles)) {
-                processFiles(siteId, root, createdFiles, false);
-            }
-            if (CollectionUtils.isNotEmpty(updatedFiles)) {
-                processFiles(siteId, root, updatedFiles, false);
-            }
-            if (CollectionUtils.isNotEmpty(deletedFiles)) {
-                processFiles(siteId, root, deletedFiles, true);
-            }
-        } catch (Exception exc) {
-            logger.error("Error: ", exc);
-            throw new PublishingException("Failed to complete postprocessing.", exc);
+        if (CollectionUtils.isNotEmpty(createdFiles)) {
+            processFiles(siteId, root, createdFiles, false);
+        }
+        if (CollectionUtils.isNotEmpty(updatedFiles)) {
+            processFiles(siteId, root, updatedFiles, false);
+        }
+        if (CollectionUtils.isNotEmpty(deletedFiles)) {
+            processFiles(siteId, root, deletedFiles, true);
         }
     }
 
-    private void processFiles(String siteId, String root, List<String> fileList, boolean isDelete)
-        throws IOException {
+    private void processFiles(String siteId, String root, List<String> fileList, boolean isDelete) {
         for (String filePath : fileList) {
             try {
                 if (logger.isDebugEnabled()) {
@@ -93,7 +87,7 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
                 if (!isDelete) {
                     if (isMetadataFile(filePath)) {
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Metadata processing started.");
+                            logger.debug("Metadata processing started...");
                         }
                         SAXReader reader = new SAXReader();
                         try {
@@ -101,9 +95,9 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
                             updateIndexPath = getAttachmentPath(document);
                             if (StringUtils.isNotBlank(updateIndexPath)) {
                                 if (logger.isDebugEnabled()) {
-                                    logger.debug("Extracting properties.");
+                                    logger.debug("Extracting properties...");
                                 }
-                                Document parsedDocument = parseTokenizeAttribute(document);
+
                                 externalProperties = parseMetadataFile(document);
                                 file = new File(root + updateIndexPath);
                                 if (!file.exists()) {
@@ -117,7 +111,7 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
                             logger.error(String.format("Error while opening xml file %s for site %s", filePath, siteId), e);
                         }
                         if (logger.isDebugEnabled()) {
-                            logger.debug("Metadata processing finished.");
+                            logger.debug("Metadata processing finished");
                         }
                     } else if (isAttachmentFile(filePath)) {
                         searchIndexUpdate = true;
@@ -153,7 +147,7 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
         for (int i = 0, size = element.nodeCount(); i < size; i++) {
             Node node = element.node(i);
             if (logger.isDebugEnabled()) {
-                logger.debug(String.format("Processing xml element %s", node.getPath()));
+                logger.debug(String.format("Processing node %s", node.getPath()));
             }
             if (node instanceof Element) {
                 StringBuilder sbPrefix = new StringBuilder(key);
