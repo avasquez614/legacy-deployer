@@ -194,12 +194,14 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
 
     private boolean isMetadataFile(String filePath) {
         boolean metadataFile = false;
-        for (String metadataPattern : metadataPathPatterns) {
-            Pattern pattern = Pattern.compile(metadataPattern);
-            Matcher matcher = pattern.matcher(filePath);
-            if (matcher.matches()) {
-                metadataFile = true;
-                break;
+        if (CollectionUtils.isNotEmpty(metadataPathPatterns)) {
+            for (String metadataPattern : metadataPathPatterns) {
+                Pattern pattern = Pattern.compile(metadataPattern);
+                Matcher matcher = pattern.matcher(filePath);
+                if (matcher.matches()) {
+                    metadataFile = true;
+                    break;
+                }
             }
         }
         return metadataFile;
@@ -207,12 +209,14 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
 
     private boolean isAttachmentFile(String filePath) {
         boolean metadataFile = false;
-        for (String attachmentPattern : attachmentPathPatterns) {
-            Pattern pattern = Pattern.compile(attachmentPattern);
-            Matcher matcher = pattern.matcher(filePath);
-            if (matcher.matches()) {
-                metadataFile = true;
-                break;
+        if (CollectionUtils.isNotEmpty(attachmentPathPatterns)) {
+            for (String attachmentPattern : attachmentPathPatterns) {
+                Pattern pattern = Pattern.compile(attachmentPattern);
+                Matcher matcher = pattern.matcher(filePath);
+                if (matcher.matches()) {
+                    metadataFile = true;
+                    break;
+                }
             }
         }
         return metadataFile;
