@@ -13,7 +13,7 @@
     <parent>
         <groupId>org.craftercms</groupId>
         <artifactId>crafter-studio-publishing-receiver-parent</artifactId>
-        <version>2.5.5.1</version>
+        <version>2.5.5.2-SNAPSHOT</version>
     </parent>
 	
     <properties>
@@ -185,12 +185,12 @@
         <dependency>
             <groupId>org.craftercms</groupId>
             <artifactId>crafter-search-client</artifactId>
-            <version>2.5.5</version>
+            <version>2.5.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.craftercms</groupId>
             <artifactId>crafter-search-api</artifactId>
-            <version>2.5.5</version>
+            <version>2.5.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.craftercms</groupId>
