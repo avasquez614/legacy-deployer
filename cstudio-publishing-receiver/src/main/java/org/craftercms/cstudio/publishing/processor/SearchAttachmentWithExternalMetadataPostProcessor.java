@@ -1,6 +1,15 @@
 package org.craftercms.cstudio.publishing.processor;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,16 +99,9 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
                         if (logger.isDebugEnabled()) {
                             logger.debug("Metadata processing started...");
                         }
-                        SAXReader reader = new SAXReader();
+
                         try {
-                            reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-                            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-                        }catch (SAXException ex){
-                            logger.error("Unable to turn off external entity loading, This could be a security risk.", ex);
-                        }
-                        try {
-                            Document document = reader.read(file);
+                            Document document = readMetadata(file);
                             updateIndexPath = getAttachmentPath(document);
                             if (StringUtils.isNotBlank(updateIndexPath)) {
                                 if (logger.isDebugEnabled()) {
@@ -263,6 +265,23 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
             }
         }
         return document;
+    }
+
+    private Document readMetadata(File metadataFile) throws DocumentException {
+        SAXReader reader = new SAXReader();
+        try {
+            reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+        }catch (SAXException ex){
+            logger.error("Unable to turn off external entity loading, This could be a security risk.", ex);
+        }
+
+        try {
+            return reader.read(new BufferedReader(new InputStreamReader(new FileInputStream(metadataFile), "UTF-8")));
+        } catch (Exception e) {
+           throw new DocumentException("Unable to read document @ " + metadataFile, e);
+        }
     }
 
     public String getSiteName() {
