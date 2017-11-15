@@ -233,7 +233,6 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
     }
 
     private Document parseTokenizeAttribute(Document document) throws DocumentException {
-
         String tokenizeXpath = String.format("//*[@%s=\"true\"]", tokenizeAttribute);
         if (logger.isDebugEnabled()) {
             logger.debug("Using tokenize XPath: " + tokenizeXpath);
@@ -269,6 +268,10 @@ public class SearchAttachmentWithExternalMetadataPostProcessor extends AbstractP
 
     private Document readMetadata(File metadataFile) throws DocumentException {
         SAXReader reader = new SAXReader();
+        reader.setMergeAdjacentText(true);
+        reader.setStripWhitespaceText(true);
+        reader.setIgnoreComments(true);
+
         try {
             reader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
             reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
