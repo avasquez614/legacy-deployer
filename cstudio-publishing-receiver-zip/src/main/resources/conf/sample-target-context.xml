@@ -79,7 +79,7 @@
 		</property>
 		<property name="metadataPathPatterns">
 			<list>
-				<value>/site/components/attachment/([^&lt;]+).xml</value>
+				<value>/site/components/with-attachments/([^&lt;]+).xml</value>
 			</list>
 		</property>
 		<property name="referenceXPaths">
