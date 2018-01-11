@@ -22,7 +22,7 @@
     </bean>
 
     <bean id="PreviewSearchService"
-          class="org.craftercms.search.service.impl.RestClientSearchService">
+          class="org.craftercms.search.service.impl.SolrRestClientSearchService">
         <property name="serverUrl" value="http://localhost:8080/crafter-search" />
     </bean>
 
